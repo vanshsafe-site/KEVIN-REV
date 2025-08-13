@@ -1,0 +1,674 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>K.E.V.I.N - Your Mental Health Companion</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary-bg: #0a0a1f;
+            --secondary-bg: #0f1430;
+            --neon-blue: #00d4ff;
+            --neon-blue-dark: #0099cc;
+            --neon-glow: 0 0 20px rgba(0, 212, 255, 0.5);
+            --text-primary: #ffffff;
+            --text-secondary: #a0b3c5;
+            --message-user: #00a8cc;
+            --message-bot: #1a2744;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #0a0a1f 0%, #0f1430 50%, #0a0a1f 100%);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            color: var(--text-primary);
+            overflow-x: hidden;
+            position: relative;
+        }
+
+        /* Animated Background */
+        body::before {
+            content: '';
+            position: fixed;
+            width: 200%;
+            height: 200%;
+            top: -50%;
+            left: -50%;
+            background: radial-gradient(circle, rgba(0, 212, 255, 0.1) 1px, transparent 1px);
+            background-size: 50px 50px;
+            animation: backgroundMove 20s linear infinite;
+            z-index: -1;
+        }
+
+        @keyframes backgroundMove {
+            0% { transform: translate(0, 0); }
+            100% { transform: translate(50px, 50px); }
+        }
+
+        /* Header */
+        .header {
+            background: rgba(15, 20, 48, 0.9);
+            backdrop-filter: blur(10px);
+            padding: 15px 20px;
+            box-shadow: 0 4px 20px rgba(0, 212, 255, 0.2);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .header-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        #logo {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            border: 2px solid var(--neon-blue);
+            object-fit: cover;
+            box-shadow: var(--neon-glow);
+            animation: pulse 2s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); box-shadow: var(--neon-glow); }
+            50% { transform: scale(1.05); box-shadow: 0 0 30px rgba(0, 212, 255, 0.7); }
+        }
+
+        .app-title {
+            flex: 1;
+        }
+
+        .app-title h1 {
+            font-size: 1.8rem;
+            font-weight: 600;
+            color: var(--neon-blue);
+            text-shadow: 0 0 10px rgba(0, 212, 255, 0.5);
+            margin-bottom: 5px;
+        }
+
+        .app-subtitle {
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+        }
+
+        /* Status Indicator */
+        .status-indicator {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 15px;
+            background: rgba(0, 212, 255, 0.1);
+            border-radius: 20px;
+            border: 1px solid rgba(0, 212, 255, 0.3);
+        }
+
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            background: #00ff88;
+            border-radius: 50%;
+            animation: statusPulse 2s ease-in-out infinite;
+        }
+
+        @keyframes statusPulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        .status-text {
+            font-size: 0.85rem;
+            color: var(--neon-blue);
+        }
+
+        /* Main Container */
+        .main-container {
+            flex: 1;
+            max-width: 900px;
+            width: 100%;
+            margin: 0 auto;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Chat Container */
+        #chatbox {
+            flex: 1;
+            background: rgba(15, 20, 48, 0.6);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 20px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            border: 1px solid rgba(0, 212, 255, 0.2);
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+            max-height: calc(100vh - 280px);
+        }
+
+        /* Scrollbar Styling */
+        #chatbox::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        #chatbox::-webkit-scrollbar-track {
+            background: rgba(0, 212, 255, 0.1);
+            border-radius: 10px;
+        }
+
+        #chatbox::-webkit-scrollbar-thumb {
+            background: var(--neon-blue-dark);
+            border-radius: 10px;
+        }
+
+        /* Messages */
+        .message {
+            max-width: 75%;
+            padding: 15px 18px;
+            border-radius: 18px;
+            position: relative;
+            animation: messageSlide 0.3s ease-out;
+            word-wrap: break-word;
+            line-height: 1.5;
+        }
+
+        @keyframes messageSlide {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .user {
+            align-self: flex-end;
+            background: linear-gradient(135deg, var(--message-user), var(--neon-blue-dark));
+            color: white;
+            box-shadow: 0 4px 15px rgba(0, 212, 255, 0.3);
+        }
+
+        .bot {
+            align-self: flex-start;
+            background: var(--message-bot);
+            color: var(--text-primary);
+            border: 1px solid rgba(0, 212, 255, 0.2);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+        }
+
+        .bot.thinking {
+            background: linear-gradient(90deg, var(--message-bot), rgba(0, 212, 255, 0.1), var(--message-bot));
+            background-size: 200% 100%;
+            animation: thinking 1.5s ease-in-out infinite;
+        }
+
+        @keyframes thinking {
+            0% { background-position: 0% 50%; }
+            100% { background-position: 200% 50%; }
+        }
+
+        /* Typing Indicator */
+        .typing-indicator {
+            display: flex;
+            gap: 4px;
+            padding: 15px 18px;
+        }
+
+        .typing-dot {
+            width: 8px;
+            height: 8px;
+            background: var(--neon-blue);
+            border-radius: 50%;
+            animation: typingBounce 1.4s ease-in-out infinite;
+        }
+
+        .typing-dot:nth-child(2) {
+            animation-delay: 0.2s;
+        }
+
+        .typing-dot:nth-child(3) {
+            animation-delay: 0.4s;
+        }
+
+        @keyframes typingBounce {
+            0%, 60%, 100% { transform: translateY(0); }
+            30% { transform: translateY(-10px); }
+        }
+
+        /* Input Area */
+        .input-container {
+            margin-top: 20px;
+            background: rgba(15, 20, 48, 0.8);
+            backdrop-filter: blur(10px);
+            border-radius: 25px;
+            padding: 15px;
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            border: 1px solid rgba(0, 212, 255, 0.2);
+            box-shadow: 0 -5px 20px rgba(0, 0, 0, 0.3);
+        }
+
+        #userInput {
+            flex: 1;
+            background: rgba(0, 212, 255, 0.05);
+            border: 1px solid rgba(0, 212, 255, 0.2);
+            color: var(--text-primary);
+            padding: 12px 20px;
+            border-radius: 20px;
+            font-size: 1rem;
+            outline: none;
+            transition: all 0.3s ease;
+        }
+
+        #userInput:focus {
+            border-color: var(--neon-blue);
+            box-shadow: 0 0 15px rgba(0, 212, 255, 0.3);
+            background: rgba(0, 212, 255, 0.08);
+        }
+
+        #userInput::placeholder {
+            color: var(--text-secondary);
+        }
+
+        /* Buttons */
+        .btn {
+            padding: 12px 20px;
+            border: none;
+            border-radius: 20px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 0.95rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-width: 50px;
+        }
+
+        .btn-send {
+            background: linear-gradient(135deg, var(--neon-blue), var(--neon-blue-dark));
+            color: white;
+            box-shadow: 0 4px 15px rgba(0, 212, 255, 0.3);
+        }
+
+        .btn-send:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0, 212, 255, 0.4);
+        }
+
+        .btn-voice {
+            background: rgba(0, 255, 136, 0.2);
+            color: #00ff88;
+            border: 1px solid #00ff88;
+            position: relative;
+        }
+
+        .btn-voice:hover {
+            background: rgba(0, 255, 136, 0.3);
+            box-shadow: 0 0 15px rgba(0, 255, 136, 0.4);
+        }
+
+        .btn-voice.recording {
+            animation: recordPulse 1.5s ease-in-out infinite;
+            background: rgba(255, 0, 100, 0.2);
+            color: #ff0064;
+            border-color: #ff0064;
+        }
+
+        @keyframes recordPulse {
+            0%, 100% { box-shadow: 0 0 0 0 rgba(255, 0, 100, 0.4); }
+            50% { box-shadow: 0 0 0 10px rgba(255, 0, 100, 0); }
+        }
+
+        /* Welcome Message */
+        .welcome-message {
+            text-align: center;
+            padding: 40px 20px;
+            color: var(--text-secondary);
+        }
+
+        .welcome-message h2 {
+            color: var(--neon-blue);
+            margin-bottom: 10px;
+            font-size: 1.5rem;
+        }
+
+        /* Quick Actions */
+        .quick-actions {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin-top: 15px;
+            justify-content: center;
+        }
+
+        .quick-action {
+            padding: 8px 16px;
+            background: rgba(0, 212, 255, 0.1);
+            border: 1px solid rgba(0, 212, 255, 0.3);
+            border-radius: 20px;
+            color: var(--neon-blue);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 0.9rem;
+        }
+
+        .quick-action:hover {
+            background: rgba(0, 212, 255, 0.2);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 10px rgba(0, 212, 255, 0.3);
+        }
+
+        /* Mobile Responsive */
+        @media (max-width: 768px) {
+            .header-content {
+                flex-wrap: wrap;
+            }
+
+            .app-title h1 {
+                font-size: 1.4rem;
+            }
+
+            .status-indicator {
+                display: none;
+            }
+
+            .main-container {
+                padding: 10px;
+            }
+
+            #chatbox {
+                max-height: calc(100vh - 250px);
+                padding: 15px;
+            }
+
+            .message {
+                max-width: 85%;
+                font-size: 0.95rem;
+            }
+
+            .input-container {
+                padding: 10px;
+            }
+
+            #userInput {
+                padding: 10px 15px;
+                font-size: 0.95rem;
+            }
+
+            .btn {
+                padding: 10px 15px;
+                font-size: 0.9rem;
+            }
+
+            .welcome-message h2 {
+                font-size: 1.2rem;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .app-title h1 {
+                font-size: 1.2rem;
+            }
+
+            .app-subtitle {
+                display: none;
+            }
+
+            #logo {
+                width: 40px;
+                height: 40px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <div class="header">
+        <div class="header-content">
+            <img id="logo" src="logo.png" alt="K.E.V.I.N Logo" onerror="this.style.display='none'">
+            <div class="app-title">
+                <h1>K.E.V.I.N</h1>
+                <div class="app-subtitle">Your Mental Health Companion</div>
+            </div>
+            <div class="status-indicator">
+                <div class="status-dot"></div>
+                <span class="status-text">Online</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Container -->
+    <div class="main-container">
+        <!-- Chat Container -->
+        <div id="chatbox">
+            <div class="welcome-message">
+                <h2>Welcome to K.E.V.I.N</h2>
+                <p>I'm here to listen and support you. How are you feeling today?</p>
+                <div class="quick-actions">
+                    <div class="quick-action" onclick="quickMessage('I need someone to talk to')">Need to talk</div>
+                    <div class="quick-action" onclick="quickMessage('I\'m feeling anxious')">Feeling anxious</div>
+                    <div class="quick-action" onclick="quickMessage('I want to feel better')">Want to feel better</div>
+                    <div class="quick-action" onclick="quickMessage('Just checking in')">Just checking in</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Input Area -->
+        <div class="input-container">
+            <input type="text" id="userInput" placeholder="Type your message here..." autocomplete="off" />
+            <button class="btn btn-send" onclick="sendMessage()" title="Send message">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M22 2L11 13M22 2L15 22L11 13L2 9L22 2Z"/>
+                </svg>
+            </button>
+            <button class="btn btn-voice" id="micBtn" onclick="toggleVoiceInput()" title="Voice input">
+                🎤
+            </button>
+        </div>
+    </div>
+
+    <script>
+        const chatbox = document.getElementById("chatbox");
+        const userInput = document.getElementById("userInput");
+        const micBtn = document.getElementById("micBtn");
+        let isRecording = false;
+        let recognition = null;
+        let typingTimeout = null;
+
+        // Initialize speech recognition
+        if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
+            const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+            recognition = new SpeechRecognition();
+            recognition.lang = 'en-US';
+            recognition.continuous = false;
+            recognition.interimResults = false;
+
+            recognition.onresult = function(event) {
+                const transcript = event.results[0][0].transcript;
+                userInput.value = transcript;
+                sendMessage();
+                stopRecording();
+            };
+
+            recognition.onerror = function(event) {
+                console.error('Speech recognition error:', event.error);
+                stopRecording();
+                if (event.error === 'no-speech') {
+                    appendMessage("I didn't hear anything. Please try again.", "bot");
+                }
+            };
+
+            recognition.onend = function() {
+                stopRecording();
+            };
+        }
+
+        function appendMessage(text, sender) {
+            // Remove welcome message if it exists
+            const welcomeMsg = chatbox.querySelector('.welcome-message');
+            if (welcomeMsg) {
+                welcomeMsg.remove();
+            }
+
+            // Remove any existing typing indicator
+            const existingTyping = chatbox.querySelector('.typing-indicator');
+            if (existingTyping) {
+                existingTyping.remove();
+            }
+
+            const msg = document.createElement("div");
+            msg.classList.add("message", sender);
+            
+            if (sender === "bot" && text === "Thinking...") {
+                msg.classList.add("thinking");
+                msg.innerHTML = `
+                    <div class="typing-indicator">
+                        <div class="typing-dot"></div>
+                        <div class="typing-dot"></div>
+                        <div class="typing-dot"></div>
+                    </div>
+                `;
+            } else {
+                msg.textContent = text;
+            }
+            
+            chatbox.appendChild(msg);
+            chatbox.scrollTop = chatbox.scrollHeight;
+            return msg;
+        }
+
+        async function sendMessage() {
+            const message = userInput.value.trim();
+            if (!message) return;
+
+            appendMessage(message, "user");
+            userInput.value = "";
+
+            const thinkingMsg = appendMessage("Thinking...", "bot");
+
+            try {
+                const res = await fetch("/api/chat", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ message })
+                });
+
+                const data = await res.json();
+                const reply = data.reply || "I'm here to listen. Please tell me more about how you're feeling.";
+                
+                // Replace thinking message with actual response
+                thinkingMsg.classList.remove("thinking");
+                thinkingMsg.textContent = reply;
+                
+                // Speak the response
+                speakText(reply);
+            } catch (err) {
+                console.error("Error:", err);
+                thinkingMsg.classList.remove("thinking");
+                thinkingMsg.textContent = "I'm having trouble connecting right now, but I'm still here for you. Please try again.";
+            }
+        }
+
+        function toggleVoiceInput() {
+            if (!recognition) {
+                alert("Voice recognition is not supported in your browser. Please try Chrome or Edge.");
+                return;
+            }
+
+            if (isRecording) {
+                stopRecording();
+            } else {
+                startRecording();
+            }
+        }
+
+        function startRecording() {
+            isRecording = true;
+            micBtn.classList.add("recording");
+            micBtn.textContent = "🔴";
+            recognition.start();
+        }
+
+        function stopRecording() {
+            isRecording = false;
+            micBtn.classList.remove("recording");
+            micBtn.textContent = "🎤";
+            if (recognition) {
+                try {
+                    recognition.stop();
+                } catch (e) {
+                    console.log("Recognition already stopped");
+                }
+            }
+        }
+
+        function speakText(text) {
+            if ('speechSynthesis' in window) {
+                // Cancel any ongoing speech
+                window.speechSynthesis.cancel();
+                
+                const utterance = new SpeechSynthesisUtterance(text);
+                
+                // Try to find a male voice, fallback to default
+                const voices = window.speechSynthesis.getVoices();
+                const maleVoice = voices.find(voice => 
+                    voice.name.toLowerCase().includes('male') || 
+                    voice.name.toLowerCase().includes('david') ||
+                    voice.name.toLowerCase().includes('james')
+                );
+                
+                if (maleVoice) {
+                    utterance.voice = maleVoice;
+                }
+                
+                utterance.rate = 0.95;
+                utterance.pitch = 0.9;
+                utterance.volume = 0.9;
+                
+                window.speechSynthesis.speak(utterance);
+            }
+        }
+
+        function quickMessage(text) {
+            userInput.value = text;
+            sendMessage();
+        }
+
+        // Enter key to send
+        userInput.addEventListener("keypress", function(e) {
+            if (e.key === "Enter" && !e.shiftKey) {
+                e.preventDefault();
+                sendMessage();
+            }
+        });
+
+        // Load voices when available
+        if ('speechSynthesis' in window) {
+            speechSynthesis.onvoiceschanged = function() {
+                speechSynthesis.getVoices();
+            };
+        }
+
+        // Visual feedback for input
+        userInput.addEventListener("focus", function() {
+            this.parentElement.style.boxShadow = "0 0 25px rgba(0, 212, 255, 0.3)";
+        });
+
+        userInput.addEventListener("blur", function() {
+            this.parentElement.style.boxShadow = "0 -5px 20px rgba(0, 0, 0, 0.3)";
+        });
+    </script>
+</body>
+</html>
